@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Ball NFL Fantasy Draft</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom right, #ffcc80, #ffab40);
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            color: #ffeb3b;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .team, .character-list {
+            border: 2px solid #ffab40;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 25%;
+            padding: 20px;
+            margin: 10px;
+            position: relative;
+        }
+        .character-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .character-item {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ffab40;
+            border-radius: 5px;
+            background-color: #ffe0b2;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .character-item:hover {
+            background-color: #ff9800;
+            color: white;
+        }
+        .selected {
+            background-color: #ffccbc;
+        }
+        .drafted-characters {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .draft-button {
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #ffab40;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            text-align: center;
+        }
+        .draft-button:hover {
+            background-color: #f57c00;
+        }
+        #log {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+        }
+        .team-selection {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dragon Ball NFL Fantasy Draft</h1>
+    <div class="container">
+        <div class="character-list" id="character-list">
+            <h2>Available Characters</h2>
+            <ul id="characters"></ul>
+        </div>
+        <div class="team" id="team1">
+            <h2>Team 1</h2>
+            <ul class="drafted-characters" id="team1-list"></ul>
+        </div>
+        <div class="team" id="team2">
+            <h2>Team 2</h2>
+            <ul class="drafted-characters" id="team2-list"></ul>
+        </div>
+        <div class="team" id="team3">
+            <h2>Team 3</h2>
+            <ul class="drafted-characters" id="team3-list"></ul>
+        </div>
+    </div>
+    <button class="draft-button" id="draft-btn">Draft Character</button>
+    <div id="log"></div>
+
+    <script>
+        const characters = [
+            {name: "Goku (Base Form)"}, {name: "Vegeta (Base Form)"}, 
+            {name: "Gohan (Base Form)"}, {name: "Piccolo (Base Form)"},
+            {name: "Frieza (Base Form)"}, {name: "Cell (Base Form)"}, 
+            {name: "Broly (Base Form)"}, {name: "Krillin (Base Form)"},
+            {name: "Yamcha (Base Form)"}, {name: "Tien Shinhan (Base Form)"},
+            {name: "Master Roshi (Base Form)"}, {name: "Chi-Chi (Base Form)"},
+            {name: "Bulma (Base Form)"}, {name: "Trunks (Base Form)"},
+            {name: "Goten (Base Form)"}, {name: "Android 18 (Base Form)"},
+            {name: "Android 17 (Base Form)"}, {name: "Dende (Base Form)"},
+            {name: "Mr. Satan (Base Form)"}, {name: "Videl (Base Form)"},
+            {name: "Raditz (Base Form)"}, {name: "Nappa (Base Form)"},
+            {name: "Guldo (Base Form)"}, {name: "Jeice (Base Form)"},
+            {name: "Burta (Base Form)"}, {name: "Recoome (Base Form)"},
+            {name: "Captain Ginyu (Base Form)"}, {name: "Dodoria (Base Form)"},
+            {name: "Zarbon (Base Form)"}, {name: "Dabura (Base Form)"},
+            {name: "Babidi (Base Form)"}, {name: "Goku Black (Base Form)"},
+            {name: "Kefla (Base Form)"}, {name: "Champa (Base Form)"},
+            {name: "Whis (Base Form)"}, {name: "Beerus (Base Form)"},
+            {name: "Hit (Base Form)"}, {name: "Zamasu (Base Form)"},
+            {name: "Moro (Base Form)"}, {name: "Granolah (Base Form)"},
+            {name: "Majin Buu (Base Form)"}, {name: "Goku (GT Base Form)"},
+            {name: "Vegeta (GT Base Form)"}, {name: "Pan (GT Base Form)"},
+            {name: "Omega Shenron (Base Form)"}, {name: "Trunks (GT Base Form)"},
+            {name: "Goten (GT Base Form)"}, {name: "Bardock (Base Form)"},
+            {name: "Buu (Base Form)"}, {name: "Goku (Super)"}, 
+            {name: "Vegeta (Super)"}, {name: "Yamcha (Super)"}, 
+            {name: "Krillin (Super)"}, {name: "Gotenks (Base Form)"},
+            {name: "Kefla (Super Saiyan)"}, {name: "Jiren (Base Form)"},
+            {name: "Zeno (Base Form)"}, {name: "Grand Zeno (Base Form)"},
+            {name: "Zeno's Guards (Base Form)"}, {name: "Goku (Zeno)"}, 
+            {name: "Gohan (Ultimate)"}, {name: "Trunks (Ultimate)"},
+            {name: "Goten (Ultimate)"}, {name: "Yamcha (Ultimate)"}, 
+            {name: "Demon King Piccolo (Base Form)"}, {name: "Android 16 (Base Form)"},
+            {name: "Vegeta (Z)"}, {name: "Krillin (Z)"},
+            {name: "Trunks (Z)"}, {name: "Piccolo (Z)"},
+            {name: "Frieza (Z)"}, {name: "Cell (Z)"}, 
+            {name: "Gohan (Z)"}, {name: "Yamcha (Z)"}, 
+            {name: "Tien (Z)"}, {name: "Master Roshi (Z)"},
+            {name: "Raditz (DBZ Base Form)"}, {name: "Nappa (DBZ Base Form)"},
+            {name: "Yamcha (DBZ Base Form)"}, {name: "Krillin (DBZ Base Form)"},
+            {name: "Chiaotzu (DBZ Base Form)"}, {name: "Tien (DBZ Base Form)"},
+            {name: "Guldo (DBZ Base Form)"}, {name: "Jeice (DBZ Base Form)"},
+            {name: "Goku (Dragon Ball Super)"},
+            {name: "Goku (Super Saiyan God)"}, {name: "Vegeta (Super Saiyan God)"},
+            {name: "Goku (Super Saiyan Blue)"}, {name: "Vegeta (Super Saiyan Blue)"},
+            {name: "Kefla (Super Saiyan 2)"}, {name: "Broly (Legendary Super Saiyan)"},
+            {name: "Yamcha (Super Saiyan 3)"}, {name: "Vegeta (Super Saiyan 3)"}, 
+            {name: "Gotenks (Super Saiyan 3)"}, {name: "Hit (Time-Skip)"},
+            {name: "Goku (Ultra Instinct)"}, {name: "Vegeta (Ultra Ego)"},
+            {name: "Jiren (Full Power)"}, {name: "Moro (Full Power)"},
+            {name: "Granolah (Full Power)"}, {name: "Oob (Base Form)"},
+            {name: "Dende (Dragon Ball Super)"}, {name: "Bulma (Dragon Ball Super)"}
+        ];
+
+        let teams = [[], [], []];
+        let currentTeam = 0;
+
+        const characterListElement = document.getElementById('characters');
+        const teamLists = [
+            document.getElementById('team1-list'),
+            document.getElementById('team2-list'),
+            document.getElementById('team3-list')
+        ];
+
+        function displayCharacters() {
+            characters.forEach((character, index) => {
+                const li = document.createElement('li');
+                li.className = 'character-item';
+                li.textContent = character.name;
+
+                const teamSelect = document.createElement('select');
+                teamSelect.className = 'team-selection';
+                teamSelect.innerHTML = `
+                    <option value="">Select Team</option>
+                    <option value="0">Team 1</option>
+                    <option value="1">Team 2</option>
+                    <option value="2">Team 3</option>
+                `;
+                teamSelect.onchange = () => selectCharacter(index, teamSelect.value);
+                li.appendChild(teamSelect);
+                characterListElement.appendChild(li);
+            });
+        }
+
+        function selectCharacter(index, teamIndex) {
+            if (teamIndex) {
+                teamIndex = parseInt(teamIndex) - 1;
+                const selected = characterListElement.children[index];
+                if (!selected.classList.contains('selected')) {
+                    selected.classList.add('selected');
+                    teams[teamIndex].push(index);
+                    document.getElementById('log').textContent = `${characters[index].name} drafted by Team ${teamIndex + 1}.`;
+                    updateTeamLists();
+                }
+            } else {
+                document.getElementById('log').textContent = "Please select a team for the character.";
+            }
+        }
+
+        function updateTeamLists() {
+            teamLists.forEach((teamList, teamIndex) => {
+                teamList.innerHTML = teams[teamIndex].map(i => `<li>${characters[i].name}</li>`).join('');
+            });
+        }
+
+        document.getElementById('draft-btn').onclick = function() {
+            if (teams[currentTeam].length < 22) {
+                const availableCharacters = characters.filter((_, index) => !teams.flat().includes(index));
+                if (availableCharacters.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * availableCharacters.length);
+                    const selectedCharacter = availableCharacters[randomIndex];
+                    const teamChoice = prompt(`Draft ${selectedCharacter.name} for which team? (1-3)`);
+                    if (teamChoice >= 1 && teamChoice <= 3) {
+                        selectCharacter(characters.indexOf(selectedCharacter), teamChoice);
+                        if (teams[currentTeam].length === 22) {
+                            currentTeam++;
+                            if (currentTeam >= teams.length) currentTeam = 0; // Reset to the first team for the next round
+                        }
+                    } else {
+                        alert("Invalid team choice. Please enter a number between 1 and 3.");
+                    }
+                }
+            } else {
+                document.getElementById('log').textContent = `Team ${currentTeam + 1} has already drafted 22 characters.`;
+            }
+        };
+
+        displayCharacters();
+    </script>
+</body>
+</html>
